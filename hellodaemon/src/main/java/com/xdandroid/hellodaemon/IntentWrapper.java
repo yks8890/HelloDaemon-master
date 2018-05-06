@@ -217,7 +217,7 @@ public class IntentWrapper {
                                 .setTitle("무시할 필요가있다. " + getApplicationName() + " 배터리 최적화")
                                 .setMessage(reason + "욕구 " + getApplicationName() + " 배터리 최적화 무시 목록에 추가됨。\n\n" +
                                         "OK 를 클릭하십시오. Battery Optimization 무시 대화 상자에서 예를 선택하십시오")
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface d, int w) {
                                         iw.startActivitySafely(a);
                                     }
@@ -370,7 +370,7 @@ public class IntentWrapper {
                             .setMessage(reason + "욕구 " + getApplicationName() + " 백그라운드에서 높은 전력 소비로 실행됩니다。\n\n" +
                                     "OK를 클릭하십시오. 팝업 Background High Power Consumption에서 " + getApplicationName() +
                                     "해당 스위치가 켜져 있습니다.。")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int w) {
                                     iw.startActivitySafely(a);
                                 }
