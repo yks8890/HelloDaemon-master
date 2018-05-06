@@ -5,8 +5,8 @@ import android.app.job.*;
 import android.os.*;
 
 /**
- * Android 5.0+ 使用的 JobScheduler.
- * 运行在 :watch 子进程中.
+ * Android 5.0 이상에서 JobScheduler 사용.
+ *: watch 하위 프로세스에서 실행하십시오.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class JobSchedulerService extends JobService {

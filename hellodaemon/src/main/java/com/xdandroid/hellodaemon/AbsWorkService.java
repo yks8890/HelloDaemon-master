@@ -71,28 +71,28 @@ public abstract class AbsWorkService extends Service {
     }
 
     void startService(Intent intent, int flags, int startId) {
-        //检查服务是否不需要运行
+        //서비스를 실행할 필요가 없는지 확인하십시오.
         Boolean shouldStopService = shouldStopService(intent, flags, startId);
         if (shouldStopService != null && shouldStopService) return;
-        //若还没有取消订阅，说明任务仍在运行，为防止重复启动，直接 return
+        //구독을 취소하지 않은 경우 작업이 계속 실행 중이므로 반복 시작, 직접 반환을 방지합니다.
         Boolean workRunning = isWorkRunning(intent, flags, startId);
         if (workRunning != null && workRunning) return;
-        //业务逻辑
+        //비즈니스 로직
         startWork(intent, flags, startId);
     }
 
     /**
-     * 停止服务并取消定时唤醒
+     * 서비스를 중지하고 예정된 깨우기를 취소하십시오.
      *
-     * 停止服务使用取消订阅的方式实现，而不是调用 Context.stopService(Intent name)。因为：
-     * 1.stopService 会调用 Service.onDestroy()，而 AbsWorkService 做了保活处理，会把 Service 再拉起来；
-     * 2.我们希望 AbsWorkService 起到一个类似于控制台的角色，即 AbsWorkService 始终运行 (无论任务是否需要运行)，
-     * 而是通过 onStart() 里自定义的条件，来决定服务是否应当启动或停止。
+     * 서비스 중지는 Context.stopService (intent name)를 호출하는 대신 가입을 취소하여 수행됩니다. 왜냐하면
+     * 1..stopService는 Service.onDestroy ()를 호출하고 AbsWorkService는 연결 유지 처리를 수행하고 서비스를 다시 가져옵니다
+     * 2. 우리는 AbsWorkService가 콘솔과 같은 역할을하도록합니다. 즉, AbsWorkService가 항상 실행됩니다 (작업 실행 여부와 관계 없음).，
+     * 대신 onStart ()에 정의 된 조건에 따라 서비스 시작 또는 중지 여부가 결정됩니다.
      */
     void stopService(Intent intent, int flags, int startId) {
-        //取消对任务的订阅
+        //작업 구독 취소
         stopWork(intent, flags, startId);
-        //取消 Job / Alarm / Subscription
+        // Job / Alarm / Subscription 취소
         cancelJobAlarmSub();
     }
 
@@ -116,7 +116,7 @@ public abstract class AbsWorkService extends Service {
     }
 
     /**
-     * 最近任务列表中划掉卡片时回调
+     * 가장 최근의 작업 목록에서 카드가 초과 된 경우의 콜백
      */
     @Override
     public void onTaskRemoved(Intent rootIntent) {
@@ -124,7 +124,7 @@ public abstract class AbsWorkService extends Service {
     }
 
     /**
-     * 设置-正在运行中停止服务时回调
+     * 설정 - 실행 중에 서비스가 중지되면 콜백
      */
     @Override
     public void onDestroy() {
@@ -134,7 +134,7 @@ public abstract class AbsWorkService extends Service {
     public static class WorkNotificationService extends Service {
 
         /**
-         * 利用漏洞在 API Level 18 及以上的 Android 系统中，启动前台服务而不显示通知
+         * API 레벨 18 이상인 Android 시스템에서 알림없이 프론트 엔드 서비스 사용
          */
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {

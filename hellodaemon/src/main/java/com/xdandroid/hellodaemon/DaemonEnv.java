@@ -23,7 +23,7 @@ public final class DaemonEnv {
 
     /**
      * @param app Application Context.
-     * @param wakeUpInterval 定时唤醒的时间间隔(ms).
+     * @param wakeUpInterval 타이밍 웨이크 업 간격 (ms).
      */
     public static void initialize(@NonNull Context app, @NonNull Class<? extends AbsWorkService> serviceClass, @Nullable Integer wakeUpInterval) {
         sApp = app;

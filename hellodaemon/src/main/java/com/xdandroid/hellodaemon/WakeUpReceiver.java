@@ -5,17 +5,17 @@ import android.content.*;
 public class WakeUpReceiver extends BroadcastReceiver {
 
     /**
-     * 向 WakeUpReceiver 发送带有此 Action 的广播, 即可在不需要服务运行的时候取消 Job / Alarm / Subscription.
+     * 서비스가 필요하지 않을 때  Job / Alarm / Subscription.을 취소하려면이 작업과 함께 브로드 캐스트를 WakeUpReceiver로 보내십시오.
      */
     protected static final String ACTION_CANCEL_JOB_ALARM_SUB = "com.xdandroid.hellodaemon.CANCEL_JOB_ALARM_SUB";
 
     /**
-     * 监听 8 种系统广播 :
+     * 8 개의 시스템 브로드 캐스트 청취 :
      * CONNECTIVITY\_CHANGE, USER\_PRESENT, ACTION\_POWER\_CONNECTED, ACTION\_POWER\_DISCONNECTED,
      * BOOT\_COMPLETED, MEDIA\_MOUNTED, PACKAGE\_ADDED, PACKAGE\_REMOVED.
-     * 在网络连接改变, 用户屏幕解锁, 电源连接 / 断开, 系统启动完成, 挂载 SD 卡, 安装 / 卸载软件包时拉起 Service.
-     * Service 内部做了判断，若 Service 已在运行，不会重复启动.
-     * 运行在:watch子进程中.
+     * 네트워크 연결이 변경되면 소프트웨어 패키지를 설치 / 제거 할 때 사용자 화면이 잠기지 않고 전원이 연결 / 연결 해제되고 시스템 시동이 완료되고 SD 카드가 마운트되며 서비스가 끌어 올려집니다.
+     * 이 서비스는 내부적으로 Service가 이미 실행 중이면 다시 시작되지 않는다고 결정합니다.
+     * Run in : 시계 서브 프로세스.
      */
     @Override
     public void onReceive(Context context, Intent intent) {

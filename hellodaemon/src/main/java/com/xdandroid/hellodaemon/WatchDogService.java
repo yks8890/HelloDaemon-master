@@ -26,7 +26,7 @@ public class WatchDogService extends Service {
     protected static PendingIntent sPendingIntent;
 
     /**
-     * 守护服务，运行在:watch子进程中
+     * 데몬 서비스 실행 : watch 하위 프로세스
      */
     protected final int onStart(Intent intent, int flags, int startId) {
 
@@ -40,25 +40,26 @@ public class WatchDogService extends Service {
                 DaemonEnv.startServiceSafely(new Intent(DaemonEnv.sApp, WatchDogNotificationService.class));
         }
 
-        //定时检查 AbsWorkService 是否在运行，如果不在运行就把它拉起来
-        //Android 5.0+ 使用 JobScheduler，效果比 AlarmManager 好
+        // 주기적으로 AbsWorkService가 실행 중인지 확인하고 실행 중이 아니면 AbsWorkService를 풀다.
+        // Android 5.0 이상에서는 JobScheduler를 사용합니다 (AlarmManager보다 우수함).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             JobInfo.Builder builder = new JobInfo.Builder(HASH_CODE, new ComponentName(DaemonEnv.sApp, JobSchedulerService.class));
             builder.setPeriodic(DaemonEnv.getWakeUpInterval());
-            //Android 7.0+ 增加了一项针对 JobScheduler 的新限制，最小间隔只能是下面设定的数字
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) builder.setPeriodic(JobInfo.getMinPeriodMillis(), JobInfo.getMinFlexMillis());
+            //Android 7.0 이상에서는 JobScheduler에 새로운 제한이 추가되었습니다. 최소 간격은 아래에 설정된 숫자 일 수 있습니다
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                builder.setPeriodic(JobInfo.getMinPeriodMillis(), JobInfo.getMinFlexMillis());
             builder.setPersisted(true);
             JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
             scheduler.schedule(builder.build());
         } else {
-            //Android 4.4- 使用 AlarmManager
+            //Android 4.4- AlarmManager 사용
             AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent i = new Intent(DaemonEnv.sApp, DaemonEnv.sServiceClass);
             sPendingIntent = PendingIntent.getService(DaemonEnv.sApp, HASH_CODE, i, PendingIntent.FLAG_UPDATE_CURRENT);
             am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + DaemonEnv.getWakeUpInterval(), DaemonEnv.getWakeUpInterval(), sPendingIntent);
         }
 
-        //使用定时 Observable，避免 Android 定制系统 JobScheduler / AlarmManager 唤醒间隔不稳定的情况
+        // Timed Observable을 사용하여 Android 사용자 정의 시스템 JobScheduler / AlarmManager가 불안정한 간격으로 깨어나는 상황을 피하십시오
         sDisposable = Observable
                 .interval(DaemonEnv.getWakeUpInterval(), TimeUnit.MILLISECONDS)
                 .subscribe(new Consumer<Long>() {
@@ -73,7 +74,7 @@ public class WatchDogService extends Service {
                     }
                 });
 
-        //守护 Service 组件的启用状态, 使其不被 MAT 等工具禁用
+        //데몬은 구성 요소의 활성화 된 상태를 감시하여 MAT와 같은 도구에 의해 비활성화되지 않도록합니다
         getPackageManager().setComponentEnabledSetting(new ComponentName(getPackageName(), DaemonEnv.sServiceClass.getName()),
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
@@ -98,7 +99,7 @@ public class WatchDogService extends Service {
     }
 
     /**
-     * 最近任务列表中划掉卡片时回调
+     * 가장 최근의 작업 목록에서 카드가 초과 된 경우의 콜백
      */
     @Override
     public void onTaskRemoved(Intent rootIntent) {
@@ -106,7 +107,7 @@ public class WatchDogService extends Service {
     }
 
     /**
-     * 设置-正在运行中停止服务时回调
+     * 설정 - 실행 중에 서비스가 중지되면 콜백
      */
     @Override
     public void onDestroy() {
@@ -114,10 +115,10 @@ public class WatchDogService extends Service {
     }
 
     /**
-     * 用于在不需要服务运行的时候取消 Job / Alarm / Subscription.
-     *
-     * 因 WatchDogService 运行在 :watch 子进程, 请勿在主进程中直接调用此方法.
-     * 而是向 WakeUpReceiver 发送一个 Action 为 WakeUpReceiver.ACTION_CANCEL_JOB_ALARM_SUB 的广播.
+     * Job / Alarm / Subscription. 서비스가 필요없는 경우 취소하는 데 사용됩니다.
+     * <p>
+     * WatchDogService는 : watch 자식 프로세스에서 실행되기 때문에 메인 프로세스에서 직접이 메소드를 호출하지 마십시오.
+     * 대신 Action WakeUpReceiver.ACTION_CANCEL_JOB_ALARM_SUB을 사용하여 WakeUpReceiver 브로드 캐스트를 보냅니다.
      */
     public static void cancelJobAlarmSub() {
         if (!DaemonEnv.sInitialized) return;
@@ -134,8 +135,8 @@ public class WatchDogService extends Service {
     public static class WatchDogNotificationService extends Service {
 
         /**
-         * 利用漏洞在 API Level 18 及以上的 Android 系统中，启动前台服务而不显示通知
-         * 运行在:watch子进程中
+         * API 레벨 18 이상인 Android 시스템에서 알림없이 프론트 엔드 서비스 사용
+         * 다음에서 실행 : 시계 하위 프로세스
          */
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
